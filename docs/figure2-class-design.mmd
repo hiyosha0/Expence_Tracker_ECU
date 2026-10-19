@@ -1,0 +1,61 @@
+classDiagram
+  direction TB
+  class ViewModelBase {
+    <<abstract>>
+    #SetProperty~T~(field, value) bool
+  }
+  class MainViewModel {
+    -ITransactionRepository _repository
+    -BudgetMonitor _budgetMonitor
+    -SaveAsync() Task
+  }
+  class ITransactionRepository {
+    <<interface>>
+    +GetAllAsync() Task
+    +GetCategoriesAsync() Task
+    +AddAsync(transaction) Task
+    +UpdateAsync(transaction) Task
+    +DeleteAsync(id) Task
+    +UpdateCategoryAsync(category) Task
+  }
+  class JsonTransactionRepository {
+    -SemaphoreSlim _gate
+    +FilePath string
+  }
+  class BudgetMonitor {
+    +BudgetExceeded event
+    +CheckBudget(transactions, categories, month) void
+  }
+  class DashboardService {
+    +Summarise(transactions, categories, month) IReadOnlyList
+    +FilterAndSort(transactions, categoryId, from, to, sort) IReadOnlyList
+  }
+  class Transaction {
+    +Id Guid
+    +Description string
+    +Amount decimal
+    +CategoryId Guid
+    +Date DateOnly
+    +Type TransactionType
+  }
+  class Category {
+    +Id Guid
+    +Name string
+    +ColourHex string
+    +MonthlyBudget decimal
+  }
+  class TransactionType {
+    <<enumeration>>
+    Income
+    Expense
+  }
+  ViewModelBase <|-- MainViewModel
+  ITransactionRepository <|.. JsonTransactionRepository
+  MainViewModel --> ITransactionRepository : uses
+  MainViewModel *-- BudgetMonitor : owns and subscribes
+  MainViewModel ..> DashboardService : queries
+  BudgetMonitor ..> DashboardService : evaluates
+  JsonTransactionRepository ..> Transaction : persists
+  JsonTransactionRepository ..> Category : persists
+  Category "1" <-- "0..*" Transaction : CategoryId
+  Transaction --> TransactionType : uses

@@ -1,0 +1,34 @@
+PASS decimal preserves the 0.1 plus 0.2 example
+PASS value passing copies and ref changes the caller
+PASS immutable category replacement leaves the original unchanged
+PASS notification occurs once and uses the property name
+PASS LINQ aggregates expenses and excludes income
+PASS monthly summary excludes other months and income
+PASS budget status covers below 80 percent at 80 at 100 and above
+PASS zero budget disables threshold warnings
+PASS budget event fires once then fires after recovery and recrossing
+PASS silent startup baseline does not raise an event
+PASS category and date filters are inclusive
+PASS all four sort modes order the rows
+PASS invalid and excessive amounts are rejected
+PASS invalid descriptions categories dates and types are rejected
+PASS new storage has empty transactions and six defaults
+PASS add persists exact decimal values across a new instance
+PASS edit preserves the identifier and replaces values
+PASS delete persists removal
+PASS changed category budget persists across restart
+PASS duplicate ids fail without changing the committed file
+PASS invalid update fails without losing the previous amount
+PASS missing update and delete release the semaphore
+PASS twenty concurrent additions have no lost records
+PASS corrupt JSON is reported and is not overwritten
+PASS invalid schema version is rejected
+PASS cancellation does not poison the repository
+PASS successful writes leave no temporary files
+PASS read failure effects are absent from the method return type
+PASS view model validates input and preserves failed editor values
+PASS view model CRUD and monthly dashboard stay consistent
+PASS view model shows a budget crossing and rejects reversed dates
+PASS view model corrupt-file load keeps editing disabled
+PASS async command observes an exception and re-enables itself
+RESULT 33/33 checks passed

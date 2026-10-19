@@ -1,22 +1,104 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Expence_Tracker_ECU.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Expence_Tracker_ECU.Views.MainWindow"
-        x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="Expence_Tracker_ECU">
-
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
-
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
-
+        xmlns:models="using:ExpenseTracker.Core.Models"
+        xmlns:services="using:ExpenseTracker.Core.Services"
+        x:Class="Expence_Tracker_ECU.Views.MainWindow" x:DataType="vm:MainViewModel"
+        Title="Expense Tracker ECU" Width="1180" Height="830" MinWidth="980" MinHeight="700"
+        Icon="/Assets/avalonia-logo.ico" Background="#F8FAFC">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="16">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Expense Tracker" FontSize="28" FontWeight="Bold" />
+        <TextBlock Text="Personal transactions and monthly category budgets in LKR" Foreground="#475569" />
+      </StackPanel>
+      <Button Grid.Column="1" Content="Reload local data" Command="{Binding ReloadCommand}" VerticalAlignment="Center" />
+    </Grid>
+    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="18">
+        <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="14">
+          <StackPanel><TextBlock Text="MONTHLY INCOME" Classes="label" /><TextBlock Text="{Binding IncomeText}" FontSize="22" /></StackPanel>
+          <StackPanel Grid.Column="1"><TextBlock Text="MONTHLY EXPENSES" Classes="label" /><TextBlock Text="{Binding ExpenseText}" FontSize="22" /></StackPanel>
+          <StackPanel Grid.Column="2"><TextBlock Text="MONTHLY BALANCE" Classes="label" /><TextBlock Text="{Binding BalanceText}" FontSize="22" /></StackPanel>
+          <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" IsEnabled="{Binding CanEdit}">
+            <TextBox Text="{Binding MonthText}" PlaceholderText="yyyy-MM" Width="100" />
+            <Button Content="Show month" Command="{Binding ApplyMonthCommand}" />
+          </StackPanel>
+        </Grid>
+        <ItemsControl ItemsSource="{Binding Summaries}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="services:CategorySummary">
+              <Border Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,10,10" Width="172">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding Category.Name}" FontWeight="Bold" />
+                  <TextBlock Text="{Binding SpentText}" FontSize="16" />
+                  <TextBlock Text="{Binding BudgetText}" FontSize="11" />
+                  <TextBlock Text="{Binding StatusText}" Foreground="{Binding Colour}" FontWeight="SemiBold" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Grid ColumnDefinitions="2*,*" ColumnSpacing="22" IsEnabled="{Binding CanEdit}">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Add or edit a transaction" FontSize="18" FontWeight="Bold" />
+            <TextBox Text="{Binding Description}" PlaceholderText="Description (up to 120 characters)" MaxLength="120" />
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+              <TextBox Text="{Binding AmountText}" PlaceholderText="Amount 1250.50" />
+              <TextBox Grid.Column="1" Text="{Binding DateText}" PlaceholderText="yyyy-MM-dd" />
+              <ComboBox Grid.Column="2" ItemsSource="{Binding TransactionTypes}" SelectedItem="{Binding SelectedType}" HorizontalAlignment="Stretch" />
+            </Grid>
+            <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate><DataTemplate x:DataType="models:Category"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Content="Save transaction" Command="{Binding SaveCommand}" />
+              <Button Content="New transaction" Command="{Binding NewCommand}" />
+              <Button Content="Delete selected" Command="{Binding DeleteCommand}" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Spacing="8">
+            <TextBlock Text="Monthly category budget" FontSize="18" FontWeight="Bold" />
+            <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding BudgetCategory}" HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate><DataTemplate x:DataType="models:Category"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBox Text="{Binding BudgetText}" PlaceholderText="Monthly budget" />
+            <TextBlock Text="0 disables the budget. Near limit begins at 80%." FontSize="12" TextWrapping="Wrap" />
+            <Button Content="Save budget" Command="{Binding SaveBudgetCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+        </Grid>
+        <TextBlock Text="{Binding WarningMessage}" Foreground="#B45309" FontWeight="SemiBold" TextWrapping="Wrap" />
+        <StackPanel Spacing="8">
+          <TextBlock Text="Transactions" FontSize="18" FontWeight="Bold" />
+          <Grid ColumnDefinitions="*,*,*,*,Auto" ColumnSpacing="8" IsEnabled="{Binding CanEdit}">
+            <ComboBox ItemsSource="{Binding CategoryFilters}" SelectedItem="{Binding FilterCategory}" HorizontalAlignment="Stretch" />
+            <TextBox Grid.Column="1" Text="{Binding FromText}" PlaceholderText="From yyyy-MM-dd" />
+            <TextBox Grid.Column="2" Text="{Binding ToText}" PlaceholderText="To yyyy-MM-dd" />
+            <ComboBox Grid.Column="3" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SortSelection}" HorizontalAlignment="Stretch" />
+            <Button Grid.Column="4" Content="Apply filters" Command="{Binding ApplyFiltersCommand}" />
+          </Grid>
+          <TextBlock Text="Select a row to edit it. Blank date filters include all dates." FontSize="12" Foreground="#475569" />
+          <ListBox ItemsSource="{Binding VisibleTransactions}" SelectedItem="{Binding SelectedTransaction}" Height="240" IsEnabled="{Binding CanEdit}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:TransactionRow">
+                <Grid ColumnDefinitions="110,*,130,100,160" ColumnSpacing="12" Margin="4,7">
+                  <TextBlock Text="{Binding DateText}" />
+                  <TextBlock Grid.Column="1" Text="{Binding Description}" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Grid.Column="2" Text="{Binding CategoryName}" />
+                  <TextBlock Grid.Column="3" Text="{Binding TypeText}" />
+                  <TextBlock Grid.Column="4" Text="{Binding AmountText}" HorizontalAlignment="Right" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+    <StackPanel Grid.Row="2" Spacing="4">
+      <TextBlock Text="{Binding ErrorMessage}" Foreground="#B91C1C" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding StatusMessage}" Foreground="#334155" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding DataFilePath}" FontSize="10" Foreground="#64748B" TextTrimming="CharacterEllipsis" />
+    </StackPanel>
+  </Grid>
 </Window>

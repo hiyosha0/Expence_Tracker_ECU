@@ -20,3 +20,6 @@
 *.log
 *.trx
 *.mdbg
+
+# Temporary persistence files
+*.tmp

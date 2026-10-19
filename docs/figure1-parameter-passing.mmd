@@ -1,0 +1,16 @@
+flowchart TB
+  subgraph V[Value type passed by value]
+    A[Caller amount is 10] --> B[Copy decimal into parameter]
+    B --> C[Assign parameter to 99]
+    C --> D[Caller amount remains 10]
+  end
+  subgraph R[Reference type passed by value]
+    E[Caller references Category A] --> F[Copy object reference]
+    F --> G[Create Category B with with expression]
+    G --> H[Return B while caller still references A]
+  end
+  subgraph P[Value type passed with ref]
+    I[Caller amount is 10] --> J[Parameter aliases caller variable]
+    J --> K[Assign through alias to 99]
+    K --> L[Caller amount becomes 99]
+  end

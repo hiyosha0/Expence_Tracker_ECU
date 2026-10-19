@@ -1,0 +1,9 @@
+  ExpenseTracker.Core -> /workspace/scratch/1d592cd8bdfe/project/ExpenseTracker.Core/bin/Release/net10.0/ExpenseTracker.Core.dll
+  Expence_Tracker_ECU -> /workspace/scratch/1d592cd8bdfe/project/ExpenseTracker/bin/Release/net10.0/Expence_Tracker_ECU.dll
+  Verification -> /workspace/scratch/1d592cd8bdfe/project/Verification/bin/Release/net10.0/Verification.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.17

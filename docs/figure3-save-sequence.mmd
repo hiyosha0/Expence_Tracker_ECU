@@ -1,0 +1,30 @@
+sequenceDiagram
+  actor User
+  participant VM as MainViewModel
+  participant Repo as Json repository
+  participant File as Local JSON
+  participant Monitor as BudgetMonitor
+  User->>VM: Save transaction
+  VM->>VM: Parse and validate editor values
+  alt Invalid input
+    VM-->>User: Show validation message
+  else Valid input
+    VM->>Repo: Await AddAsync or UpdateAsync
+    Repo->>Repo: Await semaphore and read current data
+    Repo->>File: Write temporary JSON and replace file
+    alt Storage failure
+      Repo-->>VM: Propagate exception and release gate
+      VM-->>User: Show error and retain editor
+    else Successful commit
+      Repo-->>VM: Complete and release gate
+      VM->>Repo: Reload categories and transactions
+      Repo-->>VM: Return saved snapshot
+      VM->>VM: Refresh totals and filtered rows
+      VM->>Monitor: CheckBudget for affected month
+      opt Category crosses over budget
+        Monitor-->>VM: BudgetExceeded event
+        VM-->>User: Display budget warning
+      end
+      VM-->>User: Show saved confirmation
+    end
+  end
