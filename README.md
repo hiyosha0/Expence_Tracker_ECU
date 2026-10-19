@@ -1,5 +1,7 @@
 # Expense Tracker ECU
 
+Hiyosha Vinupama - 10711047
+
 A C# 14 / .NET 10 desktop application built with Avalonia 12.1.1.
 
 ## Requirements
